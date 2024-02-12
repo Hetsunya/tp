@@ -24,7 +24,7 @@ def main():
     window.bgcolor("white")
 
     fractal_turtle = turtle.Turtle()
-    fractal_turtle.speed(2)
+    fractal_turtle.speed(9)
     fractal_turtle.penup()
     fractal_turtle.goto(-150, -150)
     fractal_turtle.pendown()
