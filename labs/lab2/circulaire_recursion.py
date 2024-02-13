@@ -1,40 +1,37 @@
 import turtle
+import math
 
-def draw_sierpinski_triangle(turtle, order, size):
-    if order == 0:
-        for _ in range(3):
-            turtle.forward(size)
-            turtle.left(120)
-    else:
-        size /= 2
-        draw_sierpinski_triangle(turtle, order - 1, size)
-        turtle.forward(size)
-        draw_sierpinski_triangle(turtle, order - 1, size)
-        turtle.backward(size)
-        turtle.left(60)
-        turtle.forward(size)
-        turtle.right(60)
-        draw_sierpinski_triangle(turtle, order - 1, size)
-        turtle.left(60)
-        turtle.backward(size)
-        turtle.right(60)
+def draw_circle_fractal_recursive(x, y, size, depth, count):
+    min_size = 1
+    m = 6
+    n = 3
 
-def main():
-    window = turtle.Screen()
-    window.bgcolor("white")
+    if size > min_size and depth > 0:
+        s1 = round(size / n)
+        s2 = round(size * (n - 1) / n)
 
-    fractal_turtle = turtle.Turtle()
-    fractal_turtle.speed(9)
-    fractal_turtle.penup()
-    fractal_turtle.goto(-150, -150)
-    fractal_turtle.pendown()
+        draw_circle_fractal_recursive(x, y, s1, depth - 1, count)
+        for i in range(1, m + 1):
+            draw_circle_fractal_recursive(x - round(s2 * math.sin(2 * math.pi / m * i)),
+                                          y + round(s2 * math.cos(2 * math.pi / m * i)),
+                                          s1, depth - 1, count)
 
-    order = int(input("Введите порядок фрактала (целое число): "))
-    size = 300
+        turtle.up()
+        turtle.goto(x, y - size)
+        turtle.down()
+        turtle.circle(size)
 
-    draw_sierpinski_triangle(fractal_turtle, order, size)
+def recursive_main():
+    turtle.speed(20000000)
+    turtle.hideturtle()
+    turtle.title("Recursive Circle Fractal")
 
-    window.exitonclick()
+    x, y, initial_size, initial_depth, circles_count = 0, 0, 200, 5, 6
+
+    draw_circle_fractal_recursive(x, y, initial_size, initial_depth, circles_count)
+
+    turtle.update()
+    turtle.mainloop()
 
 if __name__ == "__main__":
-    main()
+    recursive_main()

@@ -1,43 +1,40 @@
 import turtle
+import math
 
-def apply_rule(ch, rules):
-    return rules.get(ch, ch)
-
-def generate_l_system(axiom, rules, iterations):
+def apply_l_system(axiom, rules, iterations):
     result = axiom
     for _ in range(iterations):
-        result = ''.join(apply_rule(ch, rules) for ch in result)
+        next_result = ""
+        for ch in result:
+            next_result += rules.get(ch, ch)
+        result = next_result
     return result
 
-def draw_l_system(turtle, instructions, angle, length):
-    for instruction in instructions:
-        if instruction == 'F':
-            turtle.forward(length)
-        elif instruction == '+':
-            turtle.left(angle)
-        elif instruction == '-':
-            turtle.right(angle)
-
-def main():
-    window = turtle.Screen()
-    window.bgcolor("white")
-
-    fractal_turtle = turtle.Turtle()
-    fractal_turtle.speed(5)
-    fractal_turtle.penup()
-    fractal_turtle.goto(-150, -150)
-    fractal_turtle.pendown()
-
+def draw_circle_fractal_l_system(x, y, size, iterations):
     axiom = "F"
     rules = {"F": "F+F-F-F+F"}
-    iterations = int(input("Введите количество итераций (целое число): "))
-    angle = 90
-    length = 5
 
-    instructions = generate_l_system(axiom, rules, iterations)
-    draw_l_system(fractal_turtle, instructions, angle, length)
+    l_system_string = apply_l_system(axiom, rules, iterations)
 
-    window.exitonclick()
+    for command in l_system_string:
+        if command == "F":
+            turtle.forward(size)
+        elif command == "+":
+            turtle.left(90)
+        elif command == "-":
+            turtle.right(90)
+
+def l_system_main():
+    turtle.speed(20000000)
+    turtle.hideturtle()
+    turtle.title("L-System Circle Fractal")
+
+    x, y, initial_size, iterations = 0, 0, 5, 4
+
+    draw_circle_fractal_l_system(x, y, initial_size, iterations)
+
+    turtle.update()
+    turtle.mainloop()
 
 if __name__ == "__main__":
-    main()
+    l_system_main()
