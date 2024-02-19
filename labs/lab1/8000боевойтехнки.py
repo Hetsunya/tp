@@ -9,8 +9,6 @@ class FieldPart(object):
     weight = 'weight'
 
 
-# здесь просто задаем цвета. Они не соответствуют своим названиям, но главное всё сгруппировано в одном месте
-# при желании цвета можно легко поменять не колупаясь во всей логике приложения
 class Color:
     yellow2 = '\033[1;35m'
     reset = '\033[0m'
@@ -55,42 +53,25 @@ class Field(object):
         if element == FieldPart.weight:
             return self.weight
 
-    # Рисуем поле. Здесь отрисовка делитя на две части. т.к. отрисовка весов клеток идёт по другому
+    # Рисуем поле. Здесь отрисовка делитcя на две части. т.к. отрисовка весов клеток идёт по другому
     def draw_field(self, element):
 
         field = self.get_field_part(element)
         weights = self.get_max_weight_cells()
 
-        if element == FieldPart.weight:
-            for x in range(self.size):
-                for y in range(self.size):
-                    if (x, y) in weights:
-                        print('\033[1;32m', end='')
-                    if field[x][y] < self.size:
-                        print(" ", end='')
-                    if field[x][y] == 0:
-                        print(str("" + ". " + ""), end='')
-                    else:
-                        print(str("" + str(field[x][y]) + " "), end='')
-                    print('\033[0;0m', end='')
-                print()
-
-        else:
-            # Всё что было выше - рисование веса для отладки, его можно не использовать в конечной игре.
-            # Само поле рисуется всего лишь вот так:
-            for x in range(-1, self.size):
-                for y in range(-1, self.size):
-                    if x == -1 and y == -1:
-                        print("  ", end="")
-                        continue
-                    if x == -1 and y >= 0:
-                        print(y + 1, end=" ")
-                        continue
-                    if x >= 0 and y == -1:
-                        print(Game.letters[x], end='')
-                        continue
-                    print(" " + str(field[x][y]), end='')
-                print("")
+        for x in range(-1, self.size):
+            for y in range(-1, self.size):
+                if x == -1 and y == -1:
+                    print(" ", end="")
+                    continue
+                if x == -1 and y >= 0:
+                    print(" " + str(y + 1), end=" ")
+                    continue
+                if x >= 0 and y == -1:
+                    print(Game.letters[x] + "|", end='')
+                    continue
+                print(" " + str(field[x][y]) + "|", end='')
+            print("")
         print("")
 
     # Функция проверяет помещается ли корабль на конкретную позицию конкретного поля.

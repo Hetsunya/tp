@@ -1,41 +1,42 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+def draw_circle_fractal_3d(ax, x, y, z, size, depth, count):
+    min_size = 5
+    m = 6
+    n = 3
 
-def draw_3d_fractal(ax, center, radius, depth):
-    if depth == 0:
-        return
-    else:
+    if size > min_size:
+        s1 = size / n
+        s2 = size * (n - 1) / n
+
+        # Рисуем центральную окружность перед циклом
         u = np.linspace(0, 2 * np.pi, 100)
         v = np.linspace(0, np.pi, 50)
-        x = center[0] + radius * np.outer(np.cos(u), np.sin(v))
-        y = center[1] + radius * np.outer(np.sin(u), np.sin(v))
-        z = center[2] + radius * np.outer(np.ones(np.size(u)), np.cos(v))
+        x_circle = x + size * np.outer(np.cos(u), np.sin(v))
+        y_circle = y + size * np.outer(np.sin(u), np.sin(v))
+        z_circle = z + size * np.outer(np.ones(np.size(u)), np.cos(v))
+        ax.plot_surface(x_circle, y_circle, z_circle, color='b', alpha=0.5)
 
-        ax.plot_surface(x, y, z, color='b', alpha=0.3)
+        for i in range(1, m + 1):
+            new_x = x - s2 * np.sin(2 * np.pi / m * i)
+            new_y = y + s2 * np.cos(2 * np.pi / m * i)
 
-        new_radius = radius * 0.6
-        new_depth = depth - 1
+            draw_circle_fractal_3d(ax, new_x, new_y, z, s1, depth - 1, count)
 
-        for i in range(6):
-            angle = i * (np.pi / 3)
-            new_center = center + np.array([new_radius * np.cos(angle), new_radius * np.sin(angle), 0])
-            draw_3d_fractal(ax, new_center, new_radius, new_depth)
-
-
-def main():
+def fractal_3d_main():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.grid(False)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title('3D Circle Fractal')
 
-    center = np.array([0, 0, 0])
-    radius = 1.0
-    depth = 3
+    x, y, z, initial_size, initial_depth, circles_count = 0, 0, 0, 20, 3, 5
 
-    draw_3d_fractal(ax, center, radius, depth)
+    draw_circle_fractal_3d(ax, x, y, z, initial_size, initial_depth, circles_count)
 
     plt.show()
 
-
 if __name__ == "__main__":
-    main()
+    fractal_3d_main()
