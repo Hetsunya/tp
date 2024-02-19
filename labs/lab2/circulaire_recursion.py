@@ -1,12 +1,12 @@
 import turtle
 import math
 
-def draw_circle_fractal(x, y, size, depth, count):
+def draw_circle_fractal(x, y, size, depth):
     min_size = 5
     m = 6
     n = 3
 
-    if size > min_size:
+    for _ in range(depth):
         s1 = round(size / n)
         s2 = round(size * (n - 1) / n)
 
@@ -20,20 +20,20 @@ def draw_circle_fractal(x, y, size, depth, count):
             new_x = x - round(s2 * math.sin(2 * math.pi / m * i))
             new_y = y + round(s2 * math.cos(2 * math.pi / m * i))
 
-            draw_circle_fractal(new_x, new_y, s1, depth - 1, count)
+            draw_circle_fractal(new_x, new_y, s1, depth - 1)
+        draw_circle_fractal(x, y, s1, depth - 1)
 
-def recursive_main():
+
+def main():
     turtle.speed(200)
     turtle.hideturtle()
-    turtle.title("Recursive Circle Fractal")
+    turtle.title("Circle Fractal")
 
-    x, y, initial_size, initial_depth, circles_count = 0, 0, 200, 3, 3
+    x, y, initial_size, initial_depth = 0, 0, 400, 3
 
-    for _ in range(circles_count):
-        draw_circle_fractal(x, y, initial_size, initial_depth, circles_count)
-        x += 300  # Перемещаемся на следующую позицию
+    draw_circle_fractal(x, y, initial_size, initial_depth)
 
     turtle.done()
 
 if __name__ == "__main__":
-    recursive_main()
+    main()

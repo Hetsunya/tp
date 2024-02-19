@@ -23,6 +23,7 @@ def draw_circle_fractal_3d(ax, x, y, z, size, depth, count):
             new_y = y + s2 * np.cos(2 * np.pi / m * i)
 
             draw_circle_fractal_3d(ax, new_x, new_y, z, s1, depth - 1, count)
+        draw_circle_fractal_3d(ax, x, y, z, s1, depth - 1, count)
 
 def fractal_3d_main():
     fig = plt.figure()
@@ -32,7 +33,7 @@ def fractal_3d_main():
     ax.set_zlabel('Z')
     ax.set_title('3D Circle Fractal')
 
-    x, y, z, initial_size, initial_depth, circles_count = 0, 0, 0, 20, 3, 5
+    x, y, z, initial_size, initial_depth, circles_count = 0, 0, 0, 20, 6, 8
 
     draw_circle_fractal_3d(ax, x, y, z, initial_size, initial_depth, circles_count)
 
