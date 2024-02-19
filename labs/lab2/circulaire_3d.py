@@ -1,30 +1,42 @@
-import turtle
-from math import sin, cos, pi
+import matplotlib.pyplot as plt
+import numpy as np
 
-def draw_3d_circle_fractal(x, y, size, depth, count):
-    if depth == 0:
-        return
-    else:
-        turtle.circle(size)
-        turtle.forward(size)
-        turtle.left(45)
-        draw_3d_circle_fractal(x, y, size / 2, depth - 1, count)
-        turtle.right(90)
-        draw_3d_circle_fractal(x, y, size / 2, depth - 1, count)
-        turtle.left(45)
-        turtle.backward(size)
+def draw_circle_fractal_3d(ax, x, y, z, size, depth, count):
+    min_size = 5
+    m = 6
+    n = 3
 
-def three_d_main():
-    turtle.speed(2000)
-    turtle.hideturtle()
-    turtle.title("3D Circle Fractal")
+    if size > min_size:
+        s1 = size / n
+        s2 = size * (n - 1) / n
 
-    x, y, initial_size, initial_depth, circles_count = 0, 0, 100, 3, 6
+        # Рисуем центральную окружность перед циклом
+        u = np.linspace(0, 2 * np.pi, 100)
+        v = np.linspace(0, np.pi, 50)
+        x_circle = x + size * np.outer(np.cos(u), np.sin(v))
+        y_circle = y + size * np.outer(np.sin(u), np.sin(v))
+        z_circle = z + size * np.outer(np.ones(np.size(u)), np.cos(v))
+        ax.plot_surface(x_circle, y_circle, z_circle, color='b', alpha=0.5)
 
-    draw_3d_circle_fractal(x, y, initial_size, initial_depth, circles_count)
+        for i in range(1, m + 1):
+            new_x = x - s2 * np.sin(2 * np.pi / m * i)
+            new_y = y + s2 * np.cos(2 * np.pi / m * i)
 
-    turtle.update()
-    turtle.mainloop()
+            draw_circle_fractal_3d(ax, new_x, new_y, z, s1, depth - 1, count)
+
+def fractal_3d_main():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title('3D Circle Fractal')
+
+    x, y, z, initial_size, initial_depth, circles_count = 0, 0, 0, 20, 3, 5
+
+    draw_circle_fractal_3d(ax, x, y, z, initial_size, initial_depth, circles_count)
+
+    plt.show()
 
 if __name__ == "__main__":
-    three_d_main()
+    fractal_3d_main()
