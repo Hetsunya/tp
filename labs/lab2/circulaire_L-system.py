@@ -13,7 +13,7 @@ def apply_rule(ch):
     else:
         return ch
 
-def generate_l_system(axiom, rules, iterations):
+def generate_l_system(axiom, iterations):
     result = axiom
     for _ in range(iterations):
         result = ''.join(apply_rule(ch) for ch in result)
@@ -34,7 +34,7 @@ def draw_l_system(turtle, instructions, angle, length, distance_between_c_and_f)
         elif instruction == 'C':
             # Перемещаем turtle к центральной точке с увеличенным расстоянием
             turtle.penup()
-            turtle.forward(length)
+            turtle.forward(distance_between_c_and_f)
             turtle.pendown()
 
 def main():
@@ -43,13 +43,13 @@ def main():
     turtle.title("Modified L-System Fractal")
 
     axiom = 'A'
-    rules = {'A': 'F-F-F-F-F-F-C', 'F': 'Ff+Ff+Ff+Ff+Ff+Ff+Cf', 'f': 'f', 'C': 'C'}
-    iterations = 4
+    iterations = 5
     angle = 60
     length = 10
-    distance_between_c_and_f = 40  # Увеличенное расстояние между C и F
+    distance_between_c_and_f = 40 # Увеличенное расстояние между C и F
 
-    l_system = generate_l_system(axiom, rules, iterations)
+    l_system = generate_l_system(axiom, iterations)
+    print(l_system)
     draw_l_system(turtle, l_system, angle, length, distance_between_c_and_f)
 
     turtle.done()
