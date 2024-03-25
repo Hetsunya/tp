@@ -45,7 +45,7 @@ logging.basicConfig(level=logging.INFO)
 # Пример использования:
 
 if __name__ == "__main__":
-    file_path = "list.txt"
+    file_path = "list_old.txt"
     unsorted_data = read_data_from_file(file_path)
 
     # Сортировка строковых данных радикс-сортировкой
