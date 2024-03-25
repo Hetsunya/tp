@@ -34,7 +34,7 @@ class RadixSorter:
 
 # Пример использования:
 if __name__ == "__main__":
-    with open("list.txt", "r") as file:
+    with open("list_old.txt", "r") as file:
         data = [line.strip() for line in file]
 
     radix_sorter = RadixSorter(data)

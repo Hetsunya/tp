@@ -21,6 +21,7 @@ def draw_circle_fractal(x, y, size, depth):
             new_y = y + round(s2 * math.cos(2 * math.pi / m * i))
 
             draw_circle_fractal(new_x, new_y, s1, depth - 1)
+
         draw_circle_fractal(x, y, s1, depth - 1)
 
 
@@ -29,7 +30,7 @@ def main():
     turtle.hideturtle()
     turtle.title("Circle Fractal")
 
-    x, y, initial_size, initial_depth = 0, 0, 400, 3
+    x, y, initial_size, initial_depth = 0, 0, 200, 4
 
     draw_circle_fractal(x, y, initial_size, initial_depth)
 
