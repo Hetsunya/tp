@@ -7,6 +7,11 @@ class BubbleSort:
         self.handler = logging.FileHandler("lab3.1_log.txt")
         self.handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
         self.logger.addHandler(self.handler)
+        self.clear_log_file()
+
+    def clear_log_file(self):
+        with open("lab3.1_log.txt", "w"):
+            pass
 
     def sort(self, collection):
         n = len(collection)
@@ -30,7 +35,7 @@ class BubbleSortVisualization(BubbleSort):
             for j in range(0, n - i - 1):
                 if sorted_collection[j] > sorted_collection[j + 1]:
                     sorted_collection[j], sorted_collection[j + 1] = sorted_collection[j + 1], sorted_collection[j]
-                    steps.append(list(sorted_collection))  # Add a copy of the current state
+                    steps.append(list(sorted_collection))
                     self.logger.info(f"Step {len(steps)}: {sorted_collection}")
         return steps
 
@@ -78,7 +83,7 @@ logging.basicConfig(level=logging.INFO)
 # Пример использования:
 
 if __name__ == "__main__":
-    file_path = "list_old.txt"
+    file_path = "list.txt"
     unsorted_data = read_data_from_file(file_path)
 
     # Простая сортировка пузырьком
@@ -87,13 +92,13 @@ if __name__ == "__main__":
     print("Отсортированный список:", list(sorted_data)[-1])
 
     # Сортировка пузырьком с сохранением промежуточных состояний
-    bubble_sort_visualization = BubbleSortVisualization()
-    steps = bubble_sort_visualization.sort_with_steps(unsorted_data)
-    print("Промежуточные шаги сортировки:", steps)
+    # bubble_sort_visualization = BubbleSortVisualization()
+    # steps = bubble_sort_visualization.sort_with_steps(unsorted_data)
+    # print("Промежуточные шаги сортировки:", steps)
 
     # Визуализация сортировки пузырьком
-    bubble_sort_visualizer = BubbleSortVisualizer()
-    bubble_sort_visualizer.visualize_sort(unsorted_data)
+    # bubble_sort_visualizer = BubbleSortVisualizer()
+    # bubble_sort_visualizer.visualize_sort(unsorted_data)
 
 
 # Вот тут радикс
