@@ -6,20 +6,22 @@ def naive_search(text, pattern):
     n = len(text)
     m = len(pattern)
     for i in range(n - m + 1):
-        if text[i:i+m] == pattern and (i == 0 or not text[i-1].isalpha()) and (i+m == n or not text[i+m].isalpha()):
-            occurrences.append(i)
+        if text[i:i+m] == pattern:
+            if not (text[i:i-1].isalpha() or text[i:i+m+1].isalpha()) :
+                occurrences.append(text[i-m:i+m+m])
     return occurrences
 
 def rabin_karp_search(text, pattern):
     occurrences = []
     n = len(text)
     m = len(pattern)
-    prime = 101  # Простое число для вычисления хэша
+    prime = 101 # Простое число для вычисления хэша
     pattern_hash = sum(ord(pattern[i]) * (prime ** i) for i in range(m))
     text_hash = sum(ord(text[i]) * (prime ** i) for i in range(m))
     for i in range(n - m + 1):
-        if text_hash == pattern_hash and text[i:i+m] == pattern and (i == 0 or not text[i-1].isalpha()) and (i+m == n or not text[i+m].isalpha()):
-            occurrences.append(i)
+        if text_hash == pattern_hash:
+            if not (text[i:i - 1].isalpha() or text[i:i + m + 1].isalpha()):
+                occurrences.append(text[i-m:i+m+m])
         if i < n - m:
             text_hash = (text_hash - ord(text[i])) // prime + ord(text[i+m]) * (prime ** (m - 1))
     return occurrences
