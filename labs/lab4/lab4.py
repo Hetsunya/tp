@@ -1,39 +1,61 @@
 import re
 import time
 
-# Наивный алгоритм поиска
-def naive_search(dictionary, word):
-    with open(dictionary, 'r', encoding='utf-8') as file:
-        for line in file:
-            matches = re.findall(r'\b' + re.escape(word) + r'\b', line, re.IGNORECASE)
-            if matches:
-                return f"Количество вхождений: {len(matches)}, Контекст: {line.strip()}"
-    return "Слово не найдено"
+def naive_search(text, pattern):
+    occurrences = []
+    n = len(text)
+    m = len(pattern)
+    for i in range(n - m + 1):
+        if text[i:i+m] == pattern:
+            if not (text[i:i-1].isalpha() or text[i:i+m+1].isalpha()) :
+                occurrences.append(text[i-m:i+m+m])
+    return occurrences
 
-# Эффективный алгоритм поиска
-def efficient_search(dictionary, word):
-    with open(dictionary, 'r', encoding='utf-8') as file:
-        for line in file:
-            matches = re.findall(r'\b' + re.escape(word) + r'\b', line, re.IGNORECASE)
-            if matches:
-                return f"Количество вхождений: {len(matches)}, Контекст: {line.strip()}"
-    return "Слово не найдено"
+def rabin_karp_search(text, pattern):
+    occurrences = []
+    n = len(text)
+    m = len(pattern)
+    prime = 101 # Простое число для вычисления хэша
+    pattern_hash = sum(ord(pattern[i]) * (prime ** i) for i in range(m))
+    text_hash = sum(ord(text[i]) * (prime ** i) for i in range(m))
+    for i in range(n - m + 1):
+        if text_hash == pattern_hash:
+            if not (text[i:i - 1].isalpha() or text[i:i + m + 1].isalpha()):
+                occurrences.append(text[i-m:i+m+m])
+        if i < n - m:
+            text_hash = (text_hash - ord(text[i])) // prime + ord(text[i+m]) * (prime ** (m - 1))
+    return occurrences
 
-if __name__ == "__main__":
-    dictionary_file = "text.txt"
-    word_to_search = "все"
+# Считывание словаря Ожегова
+with open("ojegov.txt", "r", encoding="utf-8") as file:
+    dictionary = file.read()
 
-    # Замер времени для наивного алгоритма
-    start_time_naive = time.time()
-    result_naive = naive_search(dictionary_file, word_to_search)
-    end_time_naive = time.time()
-    time_naive = end_time_naive - start_time_naive
+# Замер времени выполнения для наивного алгоритма
+start_time = time.time()
+naive_occurrences = naive_search(dictionary, "все")
+naive_time = time.time() - start_time
+print("Наивный алгоритм:")
+print("Количество вхождений слова 'все' как отдельного слова:", len(naive_occurrences))
+print("Время выполнения:", naive_time)
 
-    # Замер времени для эффективного алгоритма
-    start_time_efficient = time.time()
-    result_efficient = efficient_search(dictionary_file, word_to_search)
-    end_time_efficient = time.time()
-    time_efficient = end_time_efficient - start_time_efficient
+# Замер времени выполнения для алгоритма Рабина-Карпа
+start_time = time.time()
+rk_occurrences = rabin_karp_search(dictionary, "все")
+rk_time = time.time() - start_time
+print("\nАлгоритм Рабина-Карпа:")
+print("Количество вхождений слова 'все' как отдельного слова:", len(rk_occurrences))
+print("Время выполнения:", rk_time)
 
-    print(f"Результат наивного поиска: {result_naive}, Время выполнения: {time_naive} секунд")
-    print(f"Результат эффективного поиска: {result_efficient}, Время выполнения: {time_efficient} секунд")
+with open("output_lab4.txt", "w", encoding="utf-8") as output_file:
+    output_file.write("Наивный алгоритм:\n")
+    output_file.write(f"Количество вхождений слова 'все' как отдельного слова: {len(naive_occurrences)}\n")
+    output_file.write("Найденные вхождения:\n")
+    for index, word in enumerate(naive_occurrences):
+        output_file.write(f"Позиция {index}: {word}\n")
+    output_file.write(f"Время выполнения: {naive_time} сек\n\n")
+    output_file.write("Алгоритм Рабина-Карпа:\n")
+    output_file.write(f"Количество вхождений слова 'все' как отдельного слова: {len(rk_occurrences)}\n")
+    output_file.write("Найденные вхождения:\n")
+    for index, word in enumerate(rk_occurrences):
+        output_file.write(f"Позиция {index}: {word}\n")
+    output_file.write(f"Время выполнения: {rk_time} сек\n")

@@ -1,37 +1,61 @@
-import gzip
-import os
+import struct
 
-def compress_file(input_filename, output_filename):
-    with open(input_filename, 'rb') as f_in:
-        with gzip.open(output_filename, 'wb') as f_out:
-            f_out.writelines(f_in)
+# Функция для выполнения BWT на заданных байтовых данных
+def bwt(input_bytes):
+    rotations = [input_bytes[i:] + input_bytes[:i] for i in range(len(input_bytes))]
+    sorted_rotations = sorted(rotations)
+    bwt_transform = bytes(rotation[-1] for rotation in sorted_rotations)
+    return bwt_transform, sorted_rotations.index(input_bytes)
 
-def decompress_file(input_filename, output_filename):
-    with gzip.open(input_filename, 'rb') as f_in:
-        with open(output_filename, 'wb') as f_out:
-            f_out.write(f_in.read())
 
-def calculate_compression_ratio(original_size, compressed_size):
-    compression_ratio = (1 - compressed_size / original_size) * 100
-    return compression_ratio
+# Функция для обратного преобразования BWT
+def reverse_bwt(bwt_bytes, index):
+    table = [b''] * len(bwt_bytes)  # Создаем список байтовых строк
+    for i in range(len(bwt_bytes)):
+        # Преобразуем строку в байтовую строку перед объединением
+        table = sorted(b'%s%s' % (bytes([bwt_bytes[i]]), table[i]) for i in range(len(bwt_bytes)))
+    original_data = table[index]
+    return original_data
 
-# Пример использования
-input_file = 'large_file.txt'
-compressed_file = 'compressed_file.gz'
-decompressed_file = 'decompressed_file.txt'
 
-# Сжатие файла
-compress_file(input_file, compressed_file)
 
-# Распаковка файла
-decompress_file(compressed_file, decompressed_file)
+# Функция для сжатия данных с использованием BWT
+def compress_file(input_file, output_file):
+    with open(input_file, "rb") as f_in:
+        with open(output_file, "wb") as f_out:
+            block_size = 1024  # Размер блока данных для обработки BWT (можно настроить)
+            while True:
+                data_block = f_in.read(block_size)
+                if not data_block:
+                    break
 
-# Сравнение файлов с использованием diff
-os.system(f'diff {input_file} {decompressed_file}')
+                bwt_transform, index = bwt(data_block)
+                f_out.write(struct.pack('I', index))
+                f_out.write(bwt_transform)
 
-# Расчет степени сжатия
-original_size = os.path.getsize(input_file)
-compressed_size = os.path.getsize(compressed_file)
-compression_ratio = calculate_compression_ratio(original_size, compressed_size)
 
-print(f'Compression Ratio: {compression_ratio}%')
+# Функция для распаковки сжатых данных
+def decompress_file(input_file, output_file):
+    with open(input_file, "rb") as f_in:
+        with open(output_file, "wb") as f_out:
+            while True:
+                index_bytes = f_in.read(4)
+                if not index_bytes:
+                    break
+
+                index = struct.unpack('I', index_bytes)[0]
+                bwt_transform = f_in.read()
+                original_data = reverse_bwt(bwt_transform, index)
+                f_out.write(original_data)
+
+
+# Пример использования:
+input_filename = 'diff.txt'  # Путь к вашему файлу с данными из /dev/random
+compressed_filename = 'compressed_random.txt'
+decompressed_filename = 'decompressed_random.txt'
+
+# Сжатие данных из файла
+compress_file(input_filename, compressed_filename)
+
+# Распаковка сжатых данных
+decompress_file(compressed_filename, decompressed_filename)
