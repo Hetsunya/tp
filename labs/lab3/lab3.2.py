@@ -67,16 +67,17 @@ def read_data_from_file(file_path):
     return data
 
 
-def clear_file(file_path):
-    with open(file_path, 'w') as file:
+def clear_file(output_file_path):
+    with open(output_file_path, 'w') as file:
         pass
 
 
 if __name__ == "__main__":
-    file_path = "list_old.txt"
-    clear_file(file_path)
+    file_path = "list.txt"
     output_file_path = "lab3.2_log.txt"
-    arr = read_data_from_file(file_path)
+    clear_file(output_file_path)
+    # arr = read_data_from_file(file_path)
+    arr = ["37", '101', "2", "199" ,"198", "20", "18", "a"]
 
     # Сортировка поразрядной сортировкой с сохранением шагов
     sorter_with_steps = RadixSortWithSteps(output_file_path)
