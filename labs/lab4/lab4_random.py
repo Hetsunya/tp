@@ -28,8 +28,14 @@ def rabin_karp_search(data, pattern):
 
 def calculate_probability(dev_urandom_path, output_file_path, patterns):
     with open(dev_urandom_path, 'rb') as file:
-        data = file.read(100000000)  # Читаем первые 100 миллионов байт из /dev/urandom
+        data = file.read(10000000)
+        hex_data = ''.join([format(byte, '02x') for byte in data])  # Преобразовать байты в шестнадцатеричный формат
+        # print(hex_data)
         total_bytes = len(data)
+
+
+    with open(output_file_random_path, "w") as out_file:
+        out_file.write(hex_data)
 
         with open(output_file_path, 'w') as output_file:
             for pattern in patterns:
@@ -54,7 +60,8 @@ def calculate_probability(dev_urandom_path, output_file_path, patterns):
 if __name__ == "__main__":
     dev_urandom_path = '/dev/random'  # Укажите путь к /dev/urandom на вашей системе
     output_file_path = 'output_random.txt'  # Укажите путь к файлу, в который будет записан вывод
-    patterns_to_search = ['F00D', 'FACE', 'CAFE']
+    output_file_random_path = 'hexdump.txt'
+    patterns_to_search = ['F00D', 'FACE', 'CAFE', "DEAD", "BABE"]
 
     start_time = time.time()
     calculate_probability(dev_urandom_path, output_file_path, patterns_to_search)
