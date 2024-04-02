@@ -17,25 +17,32 @@ def draw_fractal(turtle, iterations, length):
 def main():
     # Настройки рисования
     iterations = 6
-    length = 10
+    length = 0.5
 
     # Настройки экрана
     screen = turtle.Screen()
-    screen.setup(width=700, height=700)
+    screen.setup(width=1000, height=1000)
     screen.bgcolor("white")
 
     # Создание черепашки
     fractal_turtle = turtle.Turtle()
-    fractal_turtle.speed(3)
+    fractal_turtle.speed(0)  # Максимальная скорость
     fractal_turtle.penup()
     fractal_turtle.goto(-length * 1.5, -length * 0.5)
     fractal_turtle.pendown()
 
+    # Отключение анимации
+    turtle.tracer(0, 0)
+
     # Рисование кругового фрактала
     draw_fractal(fractal_turtle, iterations, length)
 
+    # Обновление экрана
+    turtle.update()
+
     # Закрытие экрана по клику
     screen.exitonclick()
+
 
 if __name__ == "__main__":
     main()
