@@ -13,32 +13,23 @@ class BubbleSort:
 
 class BubbleSortWithSteps(BubbleSort):
     def __init__(self, output_file):
+        super().__init__()
         self.steps = []
         self.output_file = output_file
         self.step_counter = 1
 
     def sort(self, arr):
-        n = len(arr)
+        sorted_arr = super().sort(arr)  # Вызываем метод sort из родительского класса
+        n = len(sorted_arr)
         for i in range(n):
-            for j in range(0, n - i - 1):
-                if arr[j] > arr[j + 1]:
-                    arr[j], arr[j + 1] = arr[j + 1], arr[j]
-            self.steps.append(arr.copy())
-            self.write_step_to_file(arr.copy())
+            self.steps.append(sorted_arr[:i + 1].copy())
+            self.write_step_to_file(sorted_arr[:i + 1].copy())
             self.step_counter += 1
-        return arr
+        return sorted_arr
 
     def write_step_to_file(self, step):
         with open(self.output_file, 'a') as file:
             file.write(f"Шаг {self.step_counter}: {','.join(map(str, step))}\n")
-
-class BubbleSortVisualizer(BubbleSortWithSteps):
-    def __init__(self):
-        super().__init__()
-
-    def visualize(self):
-        for step, arr in enumerate(self.steps):
-            print(f"Шаг {step + 1}: {arr}")
 
 
 def read_data_from_file(file_path):

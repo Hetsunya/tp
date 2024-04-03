@@ -8,7 +8,7 @@ class RadixSort:
         # Проходимся по каждому символу в строках, начиная с последнего
         for char_place in range(max_length - 1, -1, -1):
             # Создаем 256 корзин для каждого символа (ASCII код от 0 до 255)
-            buckets = [[] for _ in range(2000)]
+            buckets = [[] for _ in range(4)]
 
             # Распределяем элементы по корзинам в соответствии с текущим символом
             for string in arr:
@@ -73,11 +73,11 @@ def clear_file(output_file_path):
 
 
 if __name__ == "__main__":
-    file_path = "list.txt"
+    file_path = "list_old.txt"
     output_file_path = "lab3.2_log.txt"
     clear_file(output_file_path)
-    # arr = read_data_from_file(file_path)
-    arr = ["37", '101', "2", "199" ,"198", "20", "18", "a"]
+    arr = read_data_from_file(file_path)
+    # arr = ["37", '10', "2", "7", "a", "99" ,"18", "20", "18"]
 
     # Сортировка поразрядной сортировкой с сохранением шагов
     sorter_with_steps = RadixSortWithSteps(output_file_path)
