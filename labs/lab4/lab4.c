@@ -14,49 +14,49 @@ int naive_search(const char *text, const char *pattern) {
 
   for (int i = 0; i <= n - m; i++)
     if (strncmp(text + i, pattern, m) == 0)
-      if ((i == 0 || !isalpha(text[i - 1])) && (i + m == n || !isalpha(text[i + m])))
+      if ((i == 0 || !isalpha(text[i - 1])) && (i + m == n || !isalpha(text[i + m +1 ]))){
         occurrences++;
-
+      }
   return occurrences;
 }
 
-int rabin_karp_search(const char *text, const char *pattern) {
-  int occurrences = 0;
-  int n = strlen(text);
-  int m = strlen(pattern);
+  int rabin_karp_search(const char *text, const char *pattern) {
+    int occurrences = 0;
+    int n = strlen(text);
+    int m = strlen(pattern);
 
-  // Precompute the pattern hash
-  unsigned long pattern_hash = 0;
-  for (int i = 0; i < m; i++) {
-    pattern_hash =
-        (pattern_hash * PRIME_BASE + (unsigned char)pattern[i]) % MODULUS;
-  }
-
-  // Initialize the rolling hash for the first window
-  unsigned long text_hash = 0;
-  for (int i = 0; i < m; i++) {
-    text_hash = (text_hash * PRIME_BASE + (unsigned char)text[i]) % MODULUS;
-  }
-
-  // Iterate through the text, updating the rolling hash efficiently
-  for (int i = 0; i <= n - m; i++) {
-    // Check for hash match and word boundaries
-    if (text_hash == pattern_hash && (i == 0 || !isalpha(text[i - 1])) &&
-        (i + m == n || !isalpha(text[i + m]))) {
-      occurrences++;
+    // Precompute the pattern hash
+    unsigned long pattern_hash = 0;
+    for (int i = 0; i < m; i++) {
+      pattern_hash =
+          (pattern_hash * PRIME_BASE + (unsigned char)pattern[i]) % MODULUS;
     }
 
-    // Update the rolling hash for the next window (if not at the end)
-    if (i < n - m) {
-      text_hash = ((text_hash * PRIME_BASE -
-                    (unsigned char)text[i] * (PRIME_BASE ^ (m - 1))) +
-                   (unsigned char)text[i + m]) %
-                  MODULUS;
+    // Initialize the rolling hash for the first window
+    unsigned long text_hash = 0;
+    for (int i = 0; i < m; i++) {
+      text_hash = (text_hash * PRIME_BASE + (unsigned char)text[i]) % MODULUS;
     }
-  }
 
-  return occurrences;
-}
+    // Iterate through the text, updating the rolling hash efficiently
+    for (int i = 0; i <= n - m; i++) {
+      // Check for hash match and word boundaries
+      if (text_hash == pattern_hash && (i == 0 || !isalpha(text[i - 1])) &&
+          (i + m == n || !isalpha(text[i + m]))) {
+        occurrences++;
+      }
+
+      // Update the rolling hash for the next window (if not at the end)
+      if (i < n - m) {
+        text_hash = ((text_hash * PRIME_BASE -
+                      (unsigned char)text[i] * (PRIME_BASE ^ (m - 1))) +
+                    (unsigned char)text[i + m]) %
+                    MODULUS;
+      }
+    }
+
+    return occurrences;
+  }
 
 int main() {
   // Read the dictionary from the file (replace "ojegov.txt" with your actual

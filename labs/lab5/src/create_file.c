@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define TARGET_SIZE (100 * 1024 * 1024) // 100 Мб
+#define TARGET_SIZE (10 * 1024 * 1024) // 100 Мб
 
 int main() {
     // Открываем /dev/random для чтения

@@ -1,64 +1,52 @@
 class RadixSort:
-    def __init__(self):
-        pass
+    def __init__(self, data):
+        self.data = data
+        self.max_length = max(len(str(item)) for item in data)
 
-    def sort(self, arr):
-        max_length = max(len(str(x)) for x in arr)
+    def sort(self):
+        for i in range(self.max_length - 1, -1, -1):  # Iterate from the least significant digit/character
+            buckets = [[] for _ in range(256)]  # Buckets for ASCII characters (0-255)
+            for item in self.data:
+                # Extract the character at the current position (handling different data types)
+                key = ord(str(item)[i]) if i < len(str(item)) else 0
+                buckets[key].append(item)
 
-        # Проходимся по каждому символу в строках, начиная с последнего
-        for char_place in range(max_length - 1, -1, -1):
-            # Создаем 256 корзин для каждого символа (ASCII код от 0 до 255)
-            buckets = [[] for _ in range(4)]
+            self.data = []
+            for bucket in buckets:
+                self.data.extend(bucket)
 
-            # Распределяем элементы по корзинам в соответствии с текущим символом
-            for string in arr:
-                if char_place < len(string):
-                    char = ord(string[char_place])  # Получаем ASCII код символа
-                else:
-                    char = 0  # Если длина строки меньше, чем текущий символ, используем 0
-                buckets[char].append(string)
-
-            # Собираем элементы обратно в исходный массив
-            arr = [string for bucket in buckets for string in bucket]
-
-        return arr
+        return self.data
 
 
 class RadixSortWithSteps(RadixSort):
-    def __init__(self, output_file):
-        self.steps = []
+    def __init__(self, data):
+        super().__init__(data)
+        self.steps = []  # To store the intermediate states
+
+    def _sort(self):
+        for i in range(self.max_length - 1, -1, -1):
+            buckets = [[] for _ in range(257)]  # 257 buckets (0-256)
+            for item in self.data:
+                item_str = str(item)
+                key = ord(item_str[i]) if i < len(item_str) else 0  # Use 0 for shorter items
+                buckets[key].append(item)
+
+            # Reconstruct the data using sorted() on each bucket
+            self.data = []
+            for bucket in buckets:
+                self.data.extend(sorted(bucket))  # Sort each bucket before extending
+
+class RadixSortWithOutput:
+    def __init__(self, data, output_file):
+        self.sorter = RadixSortWithSteps(data)
         self.output_file = output_file
-        self.step_counter = 1  # Счетчик шагов
 
-    def sort(self, arr):
-        max_length = max(len(str(x)) for x in arr)
-        for char_place in range(max_length - 1, -1, -1):
-            buckets = [[] for _ in range(2000)]
-            for string in arr:
-                if char_place < len(string):
-                    char = ord(string[char_place])
-                else:
-                    char = 0
-                buckets[char].append(string)
-            arr = [string for bucket in buckets for string in bucket]
-            self.steps.append(arr.copy())
-            self.write_step_to_file(arr.copy())
-            self.step_counter += 1
-        return arr
+    def sort_and_output(self):
+        self.sorter.sort()
 
-    def write_step_to_file(self, step):
-        with open(self.output_file, 'a') as file:
-            file.write(f"Шаг {self.step_counter}: {','.join(step)}\n")
-
-
-class RadixSortVisualizer(RadixSortWithSteps):
-    def __init__(self):
-        super().__init__()
-
-    def visualize(self):
-        for step, arr in enumerate(self.steps):
-            print(f"Шаг {step + 1}: {arr}")
-
+        with open(self.output_file, 'w') as f:
+            for i, step in enumerate(self.sorter.steps):
+                f.write(f"Pass {i+1}: {step}\n")
 
 def read_data_from_file(file_path):
     with open(file_path, 'r') as file:
@@ -76,12 +64,12 @@ if __name__ == "__main__":
     file_path = "list_old.txt"
     output_file_path = "lab3.2_log.txt"
     clear_file(output_file_path)
-    arr = read_data_from_file(file_path)
-    # arr = ["37", '10', "2", "7", "a", "99" ,"18", "20", "18"]
+    # data = read_data_from_file(file_path)
+    data = ["apple", "cherry", "banana", "123", "45", "kiwi", "10"]
 
     # Сортировка поразрядной сортировкой с сохранением шагов
-    sorter_with_steps = RadixSortWithSteps(output_file_path)
-    sorted_arr_with_steps = sorter_with_steps.sort(arr)
+    sorter = RadixSortWithOutput(data, "lab3.2_log.txt")
+    sorter.sort_and_output()
 
     print("Отсортированный массив сохранен в файл:", output_file_path)
 
