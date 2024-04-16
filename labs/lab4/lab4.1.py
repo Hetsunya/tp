@@ -16,21 +16,21 @@ def rabin_karp_search(text, pattern):
     occurrences = []
     n = len(text)
     m = len(pattern)
-    prime = 7
-    # pattern_hash = sum(ord(pattern[i]) * (prime ** i) for i in range(m))
-    # text_hash = sum(ord(text[i]) * (prime ** i) for i in range(m))
-    pattern_hash = hash(pattern)
-    text_hash = hash(text[:m])
-    print(pattern_hash)
-    print(text_hash)
+    prime = 11
+    pattern_hash = sum(ord(pattern[i]) * (prime ** i) for i in range(m))
+    text_hash = sum(ord(text[i]) * (prime ** i) for i in range(m))
+    # pattern_hash = hash(pattern)
+    # text_hash = hash(text[:m])
+    # print(pattern_hash)
+    # print(text_hash)
 
     for i in range(n - m + 1):
         if text_hash == pattern_hash:
             if (i == 0 or not text[i-1].isalpha()) and (i+m == n or not text[i+m].isalpha()):
                 occurrences.append(text[i:i+m])
         if i < n - m:
-            # text_hash = (text_hash - ord(text[i])) // prime + ord(text[i+m]) * (prime ** (m - 1))
-            text_hash = hash(text[i+1:i+m+1])
+            text_hash = (text_hash - ord(text[i])) // prime + ord(text[i+m]) * (prime ** (m - 1))
+            # text_hash = hash(text[i+1:i+m+1])
     return occurrences
 
 

@@ -13,35 +13,28 @@ def naive_search(data, pattern):
 
     return count
 
-def gorners_scheme(text):
-    base = 31
-    result = ord(text[0])
-    for i in range(len(text) - 1):
-        result = result * base + ord(text[i + 1])
-    return result
+import xxhash
 
-def calculate_hash(text):
-    q = 2147483647
-    return gorners_scheme(text) % q
-
-def rabin_karp_search(text, pattern):
-    occurrences = []
-    base = 31
-    q= 2147483647
+def rabin_karp_search(data, pattern):
+    n = len(data)
     m = len(pattern)
-    n = len(text)
-    pattern_hash = calculate_hash(pattern)
-    text_hash = calculate_hash(text[0:m])
 
+    def rolling_hash(data, start, end):
+        return xxhash.xxh3_64(data[start:end]).intdigest()  # 64-битный хеш
+
+    pattern_hash = rolling_hash(pattern, 0, m)
+    text_hash = rolling_hash(data, 0, m)
+
+    count = 0
     for i in range(n - m + 1):
-        if text_hash == pattern_hash:
-            if (i == 0 or not text[i - 1].isalpha()) and (i + m == n or not text[i + m].isalpha()):
-                occurrences.append(text[i-m:i+m+m])
-
-
+        if text_hash == pattern_hash and data[i:i + m] == pattern:
+            count += 1
         if i < n - m:
-            text_hash = ((text_hash - ord(text[i]) * base**(m-1)) * base + ord(text[i + m])) % q
-    return occurrences
+            # Эффективно пересчитываем хеш с помощью rolling_hash
+            text_hash = rolling_hash(data, i+1, i+m+1)
+
+    return count
+
 
 
 def calculate_probability(dev_urandom_path, output_file_path, patterns):
@@ -66,9 +59,7 @@ def calculate_probability(dev_urandom_path, output_file_path, patterns):
 
             start_time_rabin_karp = time.time()
             count_rabin_karp = rabin_karp_search(data, pattern_bytes)
-            print(f"начало измерения{start_time_rabin_karp}")
             end_time_rabin_karp = time.time()
-            print(f"конц измерения{end_time_rabin_karp}")
             time_rabin_karp = end_time_rabin_karp - start_time_rabin_karp
 
             if count_naive == count_rabin_karp:
@@ -80,7 +71,7 @@ def calculate_probability(dev_urandom_path, output_file_path, patterns):
 
 if __name__ == "__main__":
     dev_urandom_path = '/dev/random'
-    output_file_path = 'output_random.txt'
+    output_file_path = 'output_random2.txt'
     output_file_random_path = 'hexdump.txt'
     patterns_to_search = ['F00D', 'FACE', 'CAFE', "DEAD", "BABE","DEADBEEF", "CAFEBABE"]
     # , "DEADBEEF", "CAFEBABE"

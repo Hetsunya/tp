@@ -10,10 +10,13 @@ def naive_search(data, pattern):
     for i in range(n - m + 1):
         if data[i:i+m] == pattern:
             count += 1
-
     return count
 
 def rabin_karp_search(data, pattern):
+    n = len(data)
+    m = len(pattern)
+    prime = 101  # Простое число для хеширования
+    h_power = pow(256, m - 1, prime)
     def calculate_hash(string, length, prime):
         hash_value = 0
         for i in range(length):
@@ -24,10 +27,6 @@ def rabin_karp_search(data, pattern):
         new_hash = (old_hash - old_char * (256 ** (length - 1))) * 256 + new_char
         return new_hash % prime
 
-    n = len(data)
-    m = len(pattern)
-    prime = 101  # Простое число для хеширования
-    h_power = pow(256, m - 1, prime)
 
     pattern_hash = calculate_hash(pattern, m, prime)
     text_hash = calculate_hash(data, m, prime)
@@ -38,14 +37,13 @@ def rabin_karp_search(data, pattern):
             count += 1
         if i < n - m:
             text_hash = rehash(text_hash, data[i], data[i + m], m, prime, h_power)
-
     return count
 
 
 def calculate_probability(dev_urandom_path, output_file_path, patterns):
     with open(dev_urandom_path, 'rb') as file:
         data = file.read(45 * 1024 * 1024)# 63 * 1024 * 1024
-        hex_data = ''.join([format(byte, 'x') for byte in data])  # Преобразовать байты в шестнадцатеричный формат
+        hex_data = ''.join([format(byte, 'x') for byte in data])
         # print(hex_data)
         total_bytes = len(hex_data)
 
@@ -64,13 +62,11 @@ def calculate_probability(dev_urandom_path, output_file_path, patterns):
 
             start_time_rabin_karp = time.time()
             count_rabin_karp = rabin_karp_search(data, pattern_bytes)
-            print(f"начало измерения{start_time_rabin_karp}")
             end_time_rabin_karp = time.time()
-            print(f"конц измерения{end_time_rabin_karp}")
             time_rabin_karp = end_time_rabin_karp - start_time_rabin_karp
 
             if count_naive == count_rabin_karp:
-                probability = count_rabin_karp / (total_bytes - len(pattern_bytes) - 1)
+                probability = count_rabin_karp / total_bytes
 
             output_file.write(f"Последовательность {pattern} встречается {count_naive} раз (наивный поиск), Время: {time_naive:.6f} секунд\n")
             output_file.write(f"Последовательность {pattern} встречается {count_rabin_karp} раз (алгоритм Рабина-Карпа), Время: {time_rabin_karp:.6f} секунд\n")
@@ -80,7 +76,7 @@ if __name__ == "__main__":
     dev_urandom_path = '/dev/random'
     output_file_path = 'output_random.txt'
     output_file_random_path = 'hexdump.txt'
-    patterns_to_search = ['F00D', 'FACE', 'CAFE', "DEAD", "BABE","DEADBEEF", "CAFEBABE"]
+    patterns_to_search = ['F00D', 'FACE', 'CAFE', "DEAD", "BABE","DEADBE", "CAFEBA"]
     # , "DEADBEEF", "CAFEBABE"
 
     start_time = time.time()
