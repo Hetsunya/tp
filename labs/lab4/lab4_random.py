@@ -48,8 +48,8 @@ def calculate_probability(dev_urandom_path, output_file_path, patterns):
         total_bytes = len(hex_data)
 
 
-    with open(output_file_random_path, "w") as out_file:
-        out_file.write(str(data))
+    # with open(output_file_random_path, "w") as out_file:
+    #     out_file.write(str(data))
 
     with open(output_file_path, 'w') as output_file:
         for pattern in patterns:
@@ -75,7 +75,7 @@ def calculate_probability(dev_urandom_path, output_file_path, patterns):
 if __name__ == "__main__":
     dev_urandom_path = '/dev/random'
     output_file_path = 'output_random.txt'
-    output_file_random_path = 'hexdump.txt'
+    # output_file_random_path = 'hexdump.txt'
     patterns_to_search = ['F00D', 'FACE', 'CAFE', "DEAD", "BABE","DEADBE", "CAFEBA"]
     # , "DEADBEEF", "CAFEBABE"
 
