@@ -1,52 +1,54 @@
 class RadixSort:
-    def __init__(self, data):
-        self.data = data
-        self.max_length = max(len(str(item)) for item in data)
+    def __init__(self):
+        self._steps = []
 
-    def sort(self):
-        for i in range(self.max_length - 1, -1, -1):  # Iterate from the least significant digit/character
+    def sort(self, data):
+        max_length = max(len(str(item)) for item in data)
+        for i in range(max_length - 1, -1, -1):
             buckets = [[] for _ in range(256)]  # Buckets for ASCII characters (0-255)
-            for item in self.data:
-                # Extract the character at the current position (handling different data types)
-                key = ord(str(item)[i]) if i < len(str(item)) else 0
+            for item in data:
+                key = ord(item[i]) if i < len(item) else 0
                 buckets[key].append(item)
+                # if key > 0:
+                #     print(f"i = {i} item[i] = {str(item)[i]}")
+                # print(f"i = {i} item = ",item)
+                # print(f"i = {i} key(item[i])  = ",key)
+                # print("buck = ",buckets)
 
-            self.data = []
+            data = []
             for bucket in buckets:
-                self.data.extend(bucket)
+                data.extend(bucket)
 
-        return self.data
+            self._steps.append(data.copy())
 
+        return data
 
 class RadixSortWithSteps(RadixSort):
-    def __init__(self, data):
-        super().__init__(data)
-        self.steps = []  # To store the intermediate states
+    def __init__(self):
+        super().__init__()
 
-    def _sort(self):
-        for i in range(self.max_length - 1, -1, -1):
-            buckets = [[] for _ in range(257)]  # 257 buckets (0-256)
-            for item in self.data:
-                item_str = str(item)
-                key = ord(item_str[i]) if i < len(item_str) else 0  # Use 0 for shorter items
-                buckets[key].append(item)
+    def get_steps(self):
+        return self._steps
 
-            # Reconstruct the data using sorted() on each bucket
-            self.data = []
-            for bucket in buckets:
-                self.data.extend(sorted(bucket))  # Sort each bucket before extending
 
-class RadixSortWithOutput:
-    def __init__(self, data, output_file):
-        self.sorter = RadixSortWithSteps(data)
+
+class SortVisualizer:
+    def __init__(self, radix_sort_with_steps, output_file=None):
+        self.radix_sort_with_steps = radix_sort_with_steps
         self.output_file = output_file
 
-    def sort_and_output(self):
-        self.sorter.sort()
+    def visualize_sorting(self):
+        steps = self.radix_sort_with_steps.get_steps()
+        for i, step in enumerate(steps, start=1):
+            print(f"Step {i}: \n{','.join(map(str, step))}")
+            if self.output_file:
+                self.write_step_to_file(step, i)
 
-        with open(self.output_file, 'w') as f:
-            for i, step in enumerate(self.sorter.steps):
-                f.write(f"Pass {i+1}: {step}\n")
+    def write_step_to_file(self, step, step_number):
+        with open(self.output_file, 'a') as file:
+            file.write(f"Step {step_number}: \n{','.join(map(str, step))}\n")
+
+
 
 def read_data_from_file(file_path):
     with open(file_path, 'r') as file:
@@ -59,20 +61,14 @@ def clear_file(output_file_path):
     with open(output_file_path, 'w') as file:
         pass
 
+clear_file("lab3.2_log.txt")
 
-if __name__ == "__main__":
-    file_path = "list_old.txt"
-    output_file_path = "lab3.2_log.txt"
-    clear_file(output_file_path)
-    # data = read_data_from_file(file_path)
-    data = ["apple", "cherry", "banana", "123", "45", "kiwi", "10"]
+radix_sort = RadixSortWithSteps()
+data = read_data_from_file("list.txt")
+sorted_data = radix_sort.sort(data)
 
-    # Сортировка поразрядной сортировкой с сохранением шагов
-    sorter = RadixSortWithOutput(data, "lab3.2_log.txt")
-    sorter.sort_and_output()
+visualizer = SortVisualizer(radix_sort, output_file="lab3.2_log.txt")
+visualizer.visualize_sorting()
 
-    print("Отсортированный массив сохранен в файл:", output_file_path)
-
-
-
-
+print(f"sort by me: \n{sorted_data}")
+print(f"sort by python: \n{sorted(data)}")

@@ -1,41 +1,50 @@
 class BubbleSort:
     def __init__(self):
-        pass
+        self._steps = []
 
     def custom_sort(self, item):
-        if item.isdigit():  # Если элемент является числом
-            return (len(item), int(item))  # Сначала сортируем по длине, затем по числовому значению
+        if isinstance(item, int) or (isinstance(item, str) and item.isdigit()):
+            return (0, int(item)) if isinstance(item, int) else (1, int(item))
         else:
-            return (len(item), item)  # Сначала сортируем по длине, затем лексикографически
+            return (2, item, item)
+
 
     def sort(self, arr):
+        self._steps = []
         n = len(arr)
         for i in range(n):
             for j in range(0, n - i - 1):
-                if self.custom_sort(arr[j]) > self.custom_sort(arr[j + 1]):  # Используем кастомную функцию сортировки
+                if arr[j] > arr[j + 1]:
                     arr[j], arr[j + 1] = arr[j + 1], arr[j]
+            self._steps.append(arr.copy())  # Сохраняем текущий этап сортировки
         return arr
 
+    def get_steps(self):
+        return self._steps  # Метод для доступа к этапам сортировки
+
 class BubbleSortWithSteps(BubbleSort):
-    def __init__(self, output_file):
+    def __init__(self):
         super().__init__()
-        self.steps = []
+
+    def get_steps(self):
+        return super().get_steps()  # Метод для получения этапов сортировки из родительского класса
+
+
+class SortVisualizer:
+    def __init__(self, bubble_sort, output_file=None):
+        self.bubble_sort = bubble_sort
         self.output_file = output_file
-        self.step_counter = 1
 
-    def sort(self, arr):
-        sorted_arr = super().sort(arr)  # Вызываем метод sort из родительского класса
-        n = len(sorted_arr)
-        for i in range(n):
-            self.steps.append(sorted_arr[:i + 1].copy())
-            self.write_step_to_file(sorted_arr[:i + 1].copy())
-            self.step_counter += 1
-        return sorted_arr
+    def visualize_sorting(self):
+        steps = self.bubble_sort.get_steps()  # Получаем этапы сортировки из объекта BubbleSort
+        for i, step in enumerate(steps, start=1):
+            print(f"Шаг {i}: {','.join(map(str, step))}")  # Выводим этап сортировки в консоль
+            if self.output_file:
+                self.write_step_to_file(step, i)
 
-    def write_step_to_file(self, step):
+    def write_step_to_file(self, step, step_number):
         with open(self.output_file, 'a') as file:
-            file.write(f"Шаг {self.step_counter}: {','.join(map(str, step))}\n")
-
+            file.write(f"Шаг {step_number}: {','.join(map(str, step))}\n")
 
 def read_data_from_file(file_path):
     with open(file_path, 'r') as file:
@@ -44,21 +53,23 @@ def read_data_from_file(file_path):
         data = [line.strip() for line in data]
     return data
 
-def clear_file(file_path):
-    with open(file_path, 'w') as file:
+
+def clear_file(output_file_path):
+    with open(output_file_path, 'w') as file:
         pass
 
+clear_file("lab3.1_log.txt")
 
-if __name__ == "__main__":
-    file_path = "list.txt"
-    output_file_path = "lab3.1_log.txt"
-    clear_file(output_file_path)
-    data = read_data_from_file(file_path)
-    # data = [9, 3,4,6,2,1,8,7,5]
 
-    # Сортировка пузырьком с сохранением шагов
-    sorter_with_steps = BubbleSortWithSteps(output_file_path)
-    sorted_arr_with_steps = sorter_with_steps.sort(data)
-    print (f"Оригинальный массив {data}")
-    print (f"Отсортированный массив {sorted_arr_with_steps}")
-    print("Шаги сотрировки массива сохранен в файл:", output_file_path)
+# Пример использования:
+bubble_sort = BubbleSort()
+# bubble_sort.sort(["3", "1", "4", "1", "5", "9", '2', "6", "5", "3"])
+data = read_data_from_file("list.txt")
+sorted_data = bubble_sort.sort(data)
+
+visualizer = SortVisualizer(bubble_sort, output_file="lab3.1_log.txt")
+visualizer.visualize_sorting()
+
+
+print(f"sort by me: \n{sorted_data}")
+print(f"sort by python: \n{sorted(data)}")
