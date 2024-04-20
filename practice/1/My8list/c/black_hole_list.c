@@ -115,3 +115,74 @@ black_hole_t *black_hole_list_back(const black_hole_list_t *list) {
     }
     return list->tail;
 }
+
+black_hole_t *black_hole_list_pop(black_hole_list_t *list) {
+    if (list == NULL || list->head == NULL) {
+        return NULL;
+    }
+
+    black_hole_t *popped = list->head;
+
+    if (list->head == list->tail) {
+        list->head = NULL;
+        list->tail = NULL;
+    } else {
+        list->head = list->head->next;
+        list->head->prev = NULL;
+    }
+
+    return popped;
+}
+
+int black_hole_list_length(const black_hole_list_t *list) {
+    if (list == NULL) {
+        return 0;
+    }
+
+    int length = 0;
+    black_hole_t *current = list->head;
+    while (current != NULL) {
+        length++;
+        current = current->next;
+    }
+    return length;
+}
+
+int black_hole_list_contains(const black_hole_list_t *list, const char *name) {
+    return black_hole_list_find(list, name) != NULL;
+}
+
+void black_hole_list_print(const black_hole_list_t *list) {
+    if (list == NULL) {
+        printf("List is NULL\n");
+        return;
+    }
+
+    printf("Black Hole List:\n");
+    black_hole_t *current = list->head;
+    while (current != NULL) {
+        printf("Name: %s, Mass (solar masses): %ld\n", current->name, current->mass);
+        current = current->next;
+    }
+}
+
+int black_hole_list_index_of(const black_hole_list_t *list, const char *name) {
+    if (list == NULL || name == NULL) {
+        return -1; // Возвращаем -1 в случае некорректных входных данных
+    }
+
+    int index = 0;
+    black_hole_t *current = list->head;
+
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            return index; // Возвращаем индекс, если имя совпадает
+        }
+        current = current->next;
+        index++;
+    }
+
+    return -1; // Если имя не найдено, возвращаем -1
+}
+
+

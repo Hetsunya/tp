@@ -24,5 +24,9 @@ void black_hole_list_remove(black_hole_list_t *list, black_hole_t *black_hole);
 black_hole_t *black_hole_list_find(const black_hole_list_t *list, const char *name);
 black_hole_t *black_hole_list_front(const black_hole_list_t *list);
 black_hole_t *black_hole_list_back(const black_hole_list_t *list);
-
+black_hole_t *black_hole_list_pop(black_hole_list_t *list);
+int black_hole_list_length(const black_hole_list_t *list);
+int black_hole_list_contains(const black_hole_list_t *list, const char *name);
+void black_hole_list_print(const black_hole_list_t *list);
+int black_hole_list_index_of(const black_hole_list_t *list, const char *name);
 #endif /* BLACK_HOLE_LIST_H */
