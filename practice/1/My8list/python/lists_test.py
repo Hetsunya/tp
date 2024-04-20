@@ -1,104 +1,502 @@
 import pytest
 
-from black_hole_node import BlackHoleNode
-from my_black_hole_list import MyBlackHoleList
+from black_hole_list import BlackHoleList
+from list_node import BlackHoleNode
 from test_data import *
 
-@pytest.fixture(params=[SINGLE_VALUES1, SINGLE_VALUES2])
-def get_5_black_holes(request):
-    return {
-        "values": request.param,
-        "black_holes": BlackHoleNode(
-            request.param[0],
-            BlackHoleNode(
-                request.param[1],
-                BlackHoleNode(
-                    request.param[2],
-                    BlackHoleNode(request.param[3], BlackHoleNode(request.param[4])),
-                ),
-            ),
-        ),
-        "str": get_list_str(request.param),
-    }
 
-# Тесты для BlackHoleNode
+@pytest.mark.bhlist
+def test_list_init_empty():
+    lst1 = BlackHoleList()
+    assert lst1.head is None
+    assert lst1.tail is None
+    assert isinstance(lst1, BlackHoleList)
+    lst2 = BlackHoleList()
+    assert isinstance(lst2, BlackHoleList)
+    assert lst2.head is None
+    assert lst2.tail is None
 
-@pytest.mark.blackholenode
-@pytest.mark.parametrize("value", SINGLE_VALUES1)
-def test_single_black_hole_node_init(value):
-    bhn = BlackHoleNode(value)
-    assert isinstance(bhn, BlackHoleNode)
-    assert bhn.value == value
-    assert bhn.next is None
-    assert bhn.prev is None
-    assert bhn.is_black_hole is False
 
-@pytest.mark.blackholenode
-def test_wrong_black_hole_node_init_raises_exception():
+@pytest.mark.bhlist
+@pytest.mark.parametrize("value, type", [
+    (10, "quasar"),
+    (20, "blazar"),
+    (30, None),
+])
+def test_list_append_on_empty(value, type):
+    lst = BlackHoleList()
+    lst.append(value, type)
+    assert isinstance(lst.head, BlackHoleNode)
+    assert lst.head.value == value
+    assert lst.head.type == type
+    assert lst.head.next is None
+    assert lst.head.prev is None
+    assert lst.tail == lst.head
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("value1, type1, value2, type2", [
+    (10, "quasar", 20, "blazar"),
+    (20, "blazar", 30, None),
+    (30, None, 40, "quasar"),
+])
+def test_list_append_on_nonempty(value1, type1, value2, type2):
+    lst = BlackHoleList()
+    lst.append(value1, type1)
+    lst.append(value2, type2)
+    assert lst.head.value == value1
+    assert lst.head.type == type1
+    assert lst.head.next.value == value2
+    assert lst.head.next.type == type2
+    assert lst.head.next.next is None
+    assert lst.head.prev is None
+    assert lst.tail == lst.head.next
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types", [
+    ([10, 20, 30], ["quasar", "blazar", None]),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"]),
+])
+def test_list_multiple_appends(values, types):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+
+    node = lst.head
+    for i, (v, t) in enumerate(zip(values, types)):
+        assert node.value == v
+        assert node.type == t
+        if i > 0:
+            assert node.prev.value == values[i-1]
+            assert node.prev.type == types[i-1]
+        if i < len(values) - 1:
+            assert node.next.value == values[i+1]
+            assert node.next.type == types[i+1]
+        node = node.next
+
+    assert lst.tail == node.prev
+
+
+@pytest.mark.bhlist
+def test_list_len_empty():
+    lst = BlackHoleList()
+    assert len(lst) == 0
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types", [
+    ([10, 20, 30], ["quasar", "blazar", None]),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"]),
+])
+def test_list_len_nonempty(values, types):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    assert len(lst) == len(values)
+
+
+@pytest.mark.bhlist
+def test_list_str_empty():
+    assert str(BlackHoleList()) == "[]"
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types", [
+    ([10, 20, 30], ["quasar", "blazar", None]),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"]),
+])
+def test_list_str_nonempty(values, types):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    expected_str = "[" + ", ".join([f"({v}, {t})" for v, t in zip(values, types)]) + "]"
+    assert str(lst) == expected_str
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types", [
+    ([10, 20, 30], ["quasar", "blazar", None]),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"]),
+])
+def test_list_repr_nonempty(values, types):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    expected_repr = "[" + ", ".join([f"({v}, {t})" for v, t in zip(values, types)]) + "]"
+    assert repr(lst) == expected_repr
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values1, types1, values2, types2", [
+    ([10, 20, 30], ["quasar", "blazar", None], [10, 20, 30], ["quasar", "blazar", None]),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], [5, 15, 25], ["blazar", "quasar", "blazar"]),
+    ([10, 20, 30], ["quasar", "blazar", None], [10, 20], ["quasar", "blazar"]),
+])
+def test_list_eq(values1, types1, values2, types2):
+    lst1 = BlackHoleList()
+    lst2 = BlackHoleList()
+    for v, t in zip(values1, types1):
+        lst1.append(v, t)
+    for v, t in zip(values2, types2):
+        lst2.append(v, t)
+    assert (lst1 == lst2) == (values1 == values2 and types1 == types2)
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types, value_to_find, expected_result", [
+    ([10, 20, 30], ["quasar", "blazar", None], 20, True),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], 10, False),
+    ([], [], 10, False),
+])
+def test_list_contains(values, types, value_to_find, expected_result):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    assert (value_to_find in lst) == expected_result
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types, value_to_remove", [
+    ([10, 20, 30], ["quasar", "blazar", None], 20),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], 5),
+    ([10], ["quasar"], 10),
+])
+def test_list_remove_present(values, types, value_to_remove):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    expected_len = len(values)
+    lst.remove(value_to_remove)
+    assert value_to_remove not in lst
+    for v in values:
+        if v != value_to_remove:
+            assert v in lst
+    assert len(lst) == expected_len - 1
+
+
+    expected_quasars = [v for v, t in zip(values, types) if t == "quasar" and v != value_to_remove]
+    expected_blazars = [v for v, t in zip(values, types) if t == "blazar" and v != value_to_remove]
+    expected_unknown = [v for v, t in zip(values, types) if t is None and v != value_to_remove]
+
+    assert str(lst.quasars) == get_list_str(expected_quasars)
+    assert str(lst.blazars) == get_list_str(expected_blazars)
+    assert str(lst.unknown) == get_list_str(expected_unknown)
+
+
+@pytest.mark.bhlist
+def test_list_remove_empty_raises_exception():
+    lst = BlackHoleList()
+    with pytest.raises(ValueError):
+        lst.remove(666)
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types, value_to_remove", [
+    ([10, 20, 30], ["quasar", "blazar", None], 40),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], 10),
+    ([], [], 10),
+])
+def test_list_remove_absent_raises_exception(values, types, value_to_remove):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    expected_len = len(values)
+    with pytest.raises(ValueError):
+        lst.remove(value_to_remove)
+    assert len(lst) == expected_len
+
+
+@pytest.mark.bhlist
+def test_list_pop_empty_raises_exception():
+    lst = BlackHoleList()
+    with pytest.raises(IndexError):
+        lst.pop()
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types", [
+    ([10], ["quasar"]),
+    ([5, 15], ["blazar", "quasar"]),
+])
+def test_list_pop_single(values, types):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    assert lst.pop() == values[0]
+    assert len(lst) == 0
+    assert lst.head is None
+    assert lst.tail is None
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types", [
+    ([10, 20, 30], ["quasar", "blazar", None]),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"]),
+])
+def test_list_pop_nonempty(values, types):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    val_len = len(values)
+    pop_cnt = 0
+    for v in values[::-1]:
+        assert lst.pop() == v
+        pop_cnt += 1
+        assert len(lst) == val_len - pop_cnt
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types, index, expected_value", [
+    ([10, 20, 30], ["quasar", "blazar", None], 1, 20),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], 0, 5),
+    ([10], ["quasar"], 0, 10),
+])
+def test_list_pop_with_index(values, types, index, expected_value):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    assert lst.pop(index) == expected_value
+    assert len(lst) == len(values) - 1
+
+
+@pytest.mark.bhlist
+def test_list_pop_with_index_out_of_range():
+    lst = BlackHoleList()
+    lst.append(10, "quasar")
+    with pytest.raises(IndexError):
+        lst.pop(1)
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types", [
+    ([10, 20, 30], ["quasar", "blazar", None]),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"]),
+])
+def test_list_clear(values, types):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    lst.clear()
+    assert lst.head is None
+    assert lst.tail is None
+    assert len(lst) == 0
+    assert len(lst.quasars) == 0
+    assert len(lst.blazars) == 0
+    assert len(lst.unknown) == 0
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values1, types1, values2, types2", [
+    ([10, 20, 30], ["quasar", "blazar", None], [40, 50], ["blazar", "quasar"]),
+    ([5, 15], ["blazar", "quasar"], [25, 35, 45], ["quasar", "blazar", None]),
+    ([], [], [10], ["quasar"]),
+])
+def test_list_extend(values1, types1, values2, types2):
+    lst1 = BlackHoleList()
+    lst2 = BlackHoleList()
+    for v, t in zip(values1, types1):
+        lst1.append(v, t)
+    for v, t in zip(values2, types2):
+        lst2.append(v, t)
+    lst1.extend(lst2)
+    assert len(lst1) == len(values1) + len(values2)
+
+
+    expected_quasars = [v for v, t in zip(values1 + values2, types1 + types2) if t == "quasar"]
+    expected_blazars = [v for v, t in zip(values1 + values2, types1 + types2) if t == "blazar"]
+    expected_unknown = [v for v, t in zip(values1 + values2, types1 + types2) if t is None]
+
+    assert str(lst1.quasars) == get_list_str(expected_quasars)
+    assert str(lst1.blazars) == get_list_str(expected_blazars)
+    assert str(lst1.unknown) == get_list_str(expected_unknown)
+
+
+@pytest.mark.bhlist
+def test_list_extend_with_empty():
+    lst1 = BlackHoleList()
+    lst1.append(10, "quasar")
+    lst2 = BlackHoleList()
+    lst1.extend(lst2)
+    assert len(lst1) == 1
+    assert lst1.head.value == 10
+    assert lst1.head.type == "quasar"
+
+
+@pytest.mark.bhlist
+def test_list_extend_empty_with_nonempty():
+    lst1 = BlackHoleList()
+    lst2 = BlackHoleList()
+    lst2.append(10, "quasar")
+    lst1.extend(lst2)
+    assert len(lst1) == 1
+    assert lst1.head.value == 10
+    assert lst1.head.type == "quasar"
+
+
+@pytest.mark.bhlist
+def test_list_wrong_extend_raises_exception():
+    lst = BlackHoleList()
     with pytest.raises(TypeError):
-        BlackHoleNode(1, 2)
+        lst.extend([1, 2, 3])
 
-@pytest.mark.blackholenode
-@pytest.mark.parametrize("value1, value2", DOUBLE_VALUES)
-def test_double_black_hole_node_init(value1, value2):
-    bhn2 = BlackHoleNode(value2)
-    bhn1 = BlackHoleNode(value1, next=bhn2)
-    assert isinstance(bhn1, BlackHoleNode)
-    assert bhn1.value == value1
-    assert bhn1.next == bhn2
-    assert bhn1.prev is None
 
-    assert isinstance(bhn2, BlackHoleNode)
-    assert bhn2.value == value2
-    assert bhn2.next is None
-    assert bhn2.prev == bhn1
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types", [
+    ([10, 20, 30], ["quasar", "blazar", None]),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"]),
+])
+def test_list_copy(values, types):
+    lst1 = BlackHoleList()
+    for v, t in zip(values, types):
+        lst1.append(v, t)
+    lst2 = lst1.copy()
+    assert lst1 == lst2
+    assert lst1 is not lst2
+    assert lst1.head is not lst2.head
+    assert lst1.tail is not lst2.tail
 
-@pytest.mark.blackholenode
-@pytest.mark.parametrize("value", SINGLE_VALUES2)
-def test_single_black_hole_node_str(value):
-    bhn = BlackHoleNode(value)
-    assert str(bhn) == f"({value}) -> None"
 
-@pytest.mark.blackholenode
-@pytest.mark.parametrize("values, str_values", STR_CHECK_2_VALUES)
-def test_double_black_hole_node_str(values, str_values):
-    black_holes = BlackHoleNode(values[0], BlackHoleNode(values[1]))
-    assert str(black_holes) == str_values
+@pytest.mark.bhlist
+@pytest.mark.parametrize("index, value, type", [
+    (0, 10, "quasar"),
+    (1, 20, "blazar"),
+])
+def test_list_insert_in_empty(index, value, type):
+    lst = BlackHoleList()
+    lst.insert(index, value, type)
+    assert len(lst) == 1
+    assert lst.head.value == value
+    assert lst.head.type == type
+    assert lst.head.next is None
+    assert lst.head.prev is None
+    assert lst.tail == lst.head
 
-# Тесты для MyBlackHoleList
 
-@pytest.mark.myblackholelist
-def test_black_hole_list_init_empty():
-    bhlst1 = MyBlackHoleList()
-    assert bhlst1.head is None
-    assert isinstance(bhlst1, MyBlackHoleList)
+@pytest.mark.bhlist
+def test_list_wrong_insert_raises_exception():
+    lst = BlackHoleList()
+    with pytest.raises(IndexError):
+        lst.insert(-1, -1)
 
-@pytest.mark.myblackholelist
-@pytest.mark.parametrize("value", SINGLE_VALUES1)
-def test_black_hole_list_init_nonempty(value):
-    bhlst = MyBlackHoleList(value)
-    assert isinstance(bhlst, MyBlackHoleList)
-    assert isinstance(bhlst.head, BlackHoleNode)
-    assert bhlst.head.value == value
-    assert bhlst.head.next is None
 
-@pytest.mark.myblackholelist
-@pytest.mark.parametrize("value", SINGLE_VALUES2)
-def test_black_hole_list_append_on_empty(value):
-    bhlst = MyBlackHoleList()
-    bhlst.append(value)
-    assert isinstance(bhlst.head, BlackHoleNode)
-    assert bhlst.head.value == value
-    assert bhlst.head.next is None
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types, index, value, type", [
+    ([10, 20, 30], ["quasar", "blazar", None], 0, 5, "blazar"),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], 1, 12, "quasar"),
+    ([10], ["quasar"], 0, 5, "blazar"),
+])
+def test_list_insert_in_head(values, types, index, value, type):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    lst.insert(index, value, type)
+    assert len(lst) == len(values) + 1
+    assert lst.head.value == value
+    assert lst.head.type == type
 
-@pytest.mark.myblackholelist
-@pytest.mark.parametrize("value1, value2", DOUBLE_VALUES)
-def test_black_hole_list_append_on_nonempty(value1, value2):
-    bhlst = MyBlackHoleList(value1)
-    bhlst.append(value2)
-    assert bhlst.head.value == value1
-    assert bhlst.head.next == BlackHoleNode(value2)
-    assert bhlst.head.next.value == value2
-    assert bhlst.head.next.next is None
 
-# Другие тесты для MyBlackHoleList можно адаптировать из предыдущих тестов для MyList, добавив тесты, специфичные для работы с "чёрными дырами".
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types, index, value, type", [
+    ([10, 20, 30], ["quasar", "blazar", None], 3, 35, "blazar"),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], 2, 28, "quasar"),
+    ([10], ["quasar"], 1, 15, "blazar"),
+])
+def test_list_insert_in_tail(values, types, index, value, type):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    lst.insert(index, value, type)
+    assert len(lst) == len(values) + 1
+    assert lst.tail.value == value
+    assert lst.tail.type == type
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types, index, value, type", [
+    ([10, 20, 30], ["quasar", "blazar", None], 1, 15, "blazar"),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], 2, 20, "quasar"),
+])
+def test_list_insert_in_nth_pos(values, types, index, value, type):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    lst.insert(index, value, type)
+    assert len(lst) == len(values) + 1
+
+    node = lst.head
+    i = 0
+    while node:
+        if i == index:
+            assert node.value == value
+            assert node.type == type
+        else:
+            assert node.value == values[i]
+            assert node.type == types[i]
+        node = node.next
+        i += 1
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types", [
+    ([10, 20, 30], ["quasar", "blazar", None]),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"]),
+])
+def test_list_reverse(values, types):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    lst.reverse()
+    assert len(lst) == len(values)
+
+    node = lst.head
+    for v, t in zip(reversed(values), reversed(types)):
+        assert node.value == v
+        assert node.type == t
+        node = node.next
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types, value_to_find, expected_index", [
+    ([10, 20, 30], ["quasar", "blazar", None], 20, 1),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], 5, 0),
+])
+def test_list_index(values, types, value_to_find, expected_index):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    assert lst.index(value_to_find) == expected_index
+
+
+@pytest.mark.bhlist
+def test_list_index_empty_raises_exception():
+    lst = BlackHoleList()
+    with pytest.raises(ValueError):
+        lst.index(69)
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types, value_to_find", [
+    ([10, 20, 30], ["quasar", "blazar", None], 40),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], 10),
+])
+def test_list_index_absent_raises_exception(values, types, value_to_find):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    with pytest.raises(ValueError):
+        lst.index(value_to_find)
+
+
+@pytest.mark.bhlist
+@pytest.mark.parametrize("values, types, value_to_count, expected_count", [
+    ([10, 20, 30], ["quasar", "blazar", None], 20, 1),
+    ([5, 15, 25], ["blazar", "quasar", "blazar"], 5, 1),
+    ([10, 10, 20], ["quasar", "quasar", "blazar"], 10, 2),
+    ([], [], 10, 0),
+])
+def test_list_count(values, types, value_to_count, expected_count):
+    lst = BlackHoleList()
+    for v, t in zip(values, types):
+        lst.append(v, t)
+    assert lst.count(value_to_count) == expected_count
