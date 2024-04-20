@@ -5,8 +5,6 @@
 #include <stdlib.h> // Добавьте эту строку
 #include <string.h> // Добавьте эту строку
 
-// Добавьте определение функции strdup
-char *strdup(const char *s);
 
 #define TIMES_TO_RUN_RANDOM_TESTS 10ul
 
@@ -53,8 +51,6 @@ TEST(Create, CreateEmptyLists) {
 }
 
 TEST_GROUP_RUNNER(Create) { RUN_TEST_CASE(Create, CreateEmptyLists); }
-
-// Tests for other operations like insert, remove, etc. would follow similarly
 
 TEST_GROUP(Operations);
 
@@ -110,7 +106,16 @@ TEST_GROUP_RUNNER(Operations) {
 }
 
 
+static void run_all_tests(void) {
+  // Run tests for the 'Create' test group
+  RUN_TEST_GROUP(Create);
+
+  // Run tests for the 'Operations' test group
+  RUN_TEST_GROUP(Operations);
+}
+
+
 int main(int argc, const char *argv[]) {
   srand((unsigned int)time(NULL));
-  return UnityMain(argc, argv, NULL);
+  return UnityMain(argc, argv, run_all_tests);
 }
