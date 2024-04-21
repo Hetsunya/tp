@@ -11,6 +11,6 @@ class BlackHoleNode:
         return f"({self.value}, {self.type})"
 
     def __eq__(self, other):
-        if not isinstance(other, ListNode):
+        if not isinstance(other, BlackHoleNode):
             return False
-        return self.value == other.value and self.next == other.next
+        return self.value == other.value and self.type == other.type and self.next == other.next

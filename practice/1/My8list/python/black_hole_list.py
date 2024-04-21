@@ -17,14 +17,25 @@ class BlackHoleList:
             node = node.next
         return count
 
-    def __str__(self):
-        result = "["
-        node = self.head
-        while node:
-            result += str(node) + ", "
-            node = node.next
-        result = result.rstrip(", ") + "]"
+        def __str__(self):
+            result = "["
+            node = self.head
+            while node:
+                result += str(node) + ", "
+                print(node)
+                node = node.next
+                print(node)
+            result = result.rstrip(", ") + "]"
+
+        if self.quasars:
+            result += "\nQuasars: " + str(self.quasars)
+        if self.blazars:
+            result += "\nBlazars: " + str(self.blazars)
+        if self.unknown:
+            result += "\nUnknown: " + str(self.unknown)
+
         return result
+
 
     def __repr__(self):
         return str(self)
@@ -43,6 +54,10 @@ class BlackHoleList:
 
     def _insert_node(self, new_node, sublist):
         """Inserts a node into the main list and the specified sublist in sorted order by mass."""
+        if sublist is None:  # Check if the sublist is None
+            sublist = BlackHoleList()  # Create a new sublist if needed
+
+
         if sublist.head is None:
             sublist.head = sublist.tail = new_node
         else:
@@ -62,6 +77,10 @@ class BlackHoleList:
                 new_node.next = node
                 node.prev.next = new_node
                 node.prev = new_node
+        print("После вставки:")
+        print("Новый узел:", new_node)
+        print("Предыдущий узел:", new_node.prev)
+        print("Следующий узел:", new_node.next)
 
         # Insert into the main list
         if self.head is None:
@@ -87,7 +106,10 @@ class BlackHoleList:
     def append(self, value, type=None):
         new_node = BlackHoleNode(value)
         new_node.type = type
+
         if type == "quasar":
+            if self.quasars is None:
+                self.quasars = BlackHoleList()  # Create sublist only if needed
             self._insert_node(new_node, self.quasars)
         elif type == "blazar":
             self._insert_node(new_node, self.blazars)
